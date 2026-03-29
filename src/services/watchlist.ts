@@ -30,8 +30,8 @@ class watchlistApi {
     }
   }
 
-  // adds a movie to the user's watchlist
-  async addToWatchlist(movie: Movie) {
+  // adds one or more movies to the user's watchlist
+  async addToWatchlist(movie: Movie | Movie[]) {
     const url = `${this.baseUrl}`;
     const response = await this.fetchWithTimeout(url, {
       method: 'POST',
@@ -39,7 +39,7 @@ class watchlistApi {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ movie }),
+      body: JSON.stringify({ movies: Array.isArray(movie) ? movie : [movie] }),
     });
 
     if (!response.ok) {
@@ -66,22 +66,6 @@ class watchlistApi {
     const response = await this.fetchWithTimeout(url, {
       method: 'DELETE',
       credentials: 'include',
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Watchlist API Error: ${errorText}`);
-    }
-  }
-
-  async addBulkToWatchlist(movies: Movie[]) {
-    const url = `${this.baseUrl}/bulk`;
-    const response = await this.fetchWithTimeout(url, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ movies: movies }),
     });
     if (!response.ok) {
       const errorText = await response.text();

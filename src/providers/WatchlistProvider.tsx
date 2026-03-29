@@ -20,7 +20,7 @@ const WatchlistProvider = ({ children }: ProviderProps) => {
       // Sync guest watchlist with user watchlist
       const guestWatchlist = likedMovies;
       if (guestWatchlist.length > 0) {
-        await watchlistService.addBulkToWatchlist(guestWatchlist);
+        await watchlistService.addToWatchlist(guestWatchlist);
       }
       // fetch the complete watchlist from the backend 
       const rawData = await watchlistService.getWatchlist();
