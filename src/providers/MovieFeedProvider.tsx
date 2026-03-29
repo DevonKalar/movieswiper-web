@@ -35,7 +35,7 @@ const MovieFeedProvider = ({ children }: ProviderProps) => {
       setError(err);
     } finally {
       stopLoading();
-    }
+    } 
   }
 
   function moveToNext(): void {
