@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://movieswiper-server-production.up.railway.app/api/:path*"
+      "destination": "movieswiper-gateway-production.up.railway.app/:path*"
     },
     {
       "source": "/(.*)",
@@ -10,7 +10,7 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://movieswiper-server-production.up.railway.app/:path*"
+      "destination": "movieswiper-gateway-production.up.railway.app/:path*"
     }
   ]
 }
