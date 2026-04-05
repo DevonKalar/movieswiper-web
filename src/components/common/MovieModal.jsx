@@ -9,7 +9,7 @@
 
 import { CloseIcon, StarIcon } from '@icons';
 import ScrollableText from "@components/common/ScrollableText";
-import { useWatchlist } from '@/providers/WatchlistContext';
+import { useWatchlist } from '@/queries/useWatchlist';
 
 
 const MovieModal = ({ movie, isOpen, closeModal }) => {
