@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import agentService from '@services/agent.js';
-import { useWatchlist } from '@/providers/WatchlistContext';
+import { useAgentResponse } from '@/queries/useAgent';
+import { useWatchlist } from '@/queries/useWatchlist';
 import movioProfilePic from '@images/ai-avatar.jpg';
 import { ChatBotIcon } from '@icons';
 import type { ChatMessage } from '@/types/chat';
@@ -12,23 +12,18 @@ const AiChat = () => {
     content: 'Hello, I\'m Movio! Here to chat about all things movies! Can I recommend a movie, or answer some trivia questions for you?'
   }]);
 	const [inputContent, setInputContent] = useState<string>("");
-	const [isAgentTyping, setIsAgentTyping] = useState<boolean>(false);
   const { likedMovies } = useWatchlist();
+  const { mutateAsync: sendMessage, isPending: isAgentTyping } = useAgentResponse();
 
   const movieTitles = useMemo(() => likedMovies.map((movie: Movie) => movie.title).join(", "), [likedMovies]);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		// add user message to chat
 		setMessages(prev => [...prev, { sender: 'user', content: inputContent }]);
-		// clear input
 		setInputContent('');
-		// get agent response
-		setIsAgentTyping(true);
     try {
-      const response = await agentService.getResponse(inputContent, movieTitles);
-      const agentMessage: ChatMessage = { sender: 'agent', content: response.content };
-      setMessages(prev => [...prev, agentMessage]);
+      const response = await sendMessage({ userMessage: inputContent, likedMovies: movieTitles });
+      setMessages(prev => [...prev, { sender: 'agent', content: response.content }]);
     } catch (error) {
       const err = error instanceof Error ? error : new Error('An unknown error occured');
       setMessages(prev => [...prev, {
@@ -36,8 +31,6 @@ const AiChat = () => {
         content: err.message || 'Sorry, I encountered an error. Please send your message again.',
         error: true
       }]);
-    } finally {
-      setIsAgentTyping(false);
     }
 	};
 
@@ -61,7 +54,9 @@ const AiChat = () => {
 	return (
 	<div className="flex flex-col items-end fixed max-w-full bottom-0 right-0 md:bottom-12 md:right-12 p-4 z-50 gap-2">
 		
-    {isModalOpen && <div className="modal flex flex-col w-full md:w-96 gap-2 mb-4 bg-white border rounded-lg shadow-lg ">
+    {isModalOpen 
+		? 
+		(<div className="modal flex flex-col w-full md:w-96 gap-2 mb-4 bg-white border rounded-lg shadow-lg ">
 			<div className="flex flex-row items-center justify-between p-4 gap-2 border-b-1">
 				<div className="flex flex-row items-center gap-2">
 				<img src={movioProfilePic} alt="AI Avatar" className="w-12 h-12 rounded-full bg-primary-100" />
@@ -93,9 +88,10 @@ const AiChat = () => {
 					<button className="bg-primary-500 text-white rounded-3xl rounded-tl-none rounded-bl-none" type="submit">Send</button>
 				</form>
 			</div>
-		</div>}
+		</div>) 
+		: 
+		(<button className="modal-button w-16 h-16 rounded-full " onClick={toggleModal}><ChatBotIcon /></button>)}
 
-		<button className="modal-button w-16 h-16 rounded-full " onClick={toggleModal}><ChatBotIcon /></button>
 	</div>
     );
 }

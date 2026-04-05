@@ -1,133 +1,30 @@
-import type { User, LoginCredentials, RegisterData } from "../types/auth";
+import apiClient from './apiClient';
+import { storeTokens, clearTokens, getRefreshToken } from './tokenStorage';
+import type { User, AuthResponse, LoginCredentials, RegisterData } from '../types/auth';
 
-class AuthService {
-  private readonly timeout: number;
-  private readonly baseUrl: string;
+const TIMEOUT = 10000;
 
-  constructor(backendUrl: string = import.meta.env.VITE_BACKEND_URL) {
-    this.timeout = 10000; // 10 second timeout
-    this.baseUrl = `${backendUrl}auth`;
-  }
-
-  async fetchWithTimeout(url: string, options: RequestInit = {}) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-      return response;
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error('Network error');
-      if (err.name === 'AbortError') {
-        throw new Error('Request timeout - server did not respond in time');
-      }
-      throw err;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  async register(userData: RegisterData): Promise<User> {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/register`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
-    
-    // Parse response regardless of status to get server message
-    let data = null;
-    if (response.headers.get("content-type")?.includes("application/json")) {
-      data = await response.json();
-    }
-    
-    if (!response.ok) {
-      // Use server's error message if available, fallback to generic message
-      const errorMessage = data?.message || `HTTP Error ${response.status}: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-    
-    return data;
-  }
-
-  async login(credentials: LoginCredentials): Promise<User> {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/login`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
-    
-    // Parse response regardless of status to get server message
-    let data = null;
-    if (response.headers.get("content-type")?.includes("application/json")) {
-      data = await response.json();
-    }
-    
-    if (!response.ok) {
-      // Use server's error message if available, fallback to generic message
-      const errorMessage = data?.message || `HTTP Error ${response.status}: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-    
-    return data;
-  }
-  
-  async logout() {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/logout`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      
-    });
-    
-    // Parse response regardless of status to get server message
-    let data = null;
-    if (response.headers.get("content-type")?.includes("application/json")) {
-      data = await response.json();
-    }
-    
-    if (!response.ok) {
-      // Use server's error message if available, fallback to generic message
-      const errorMessage = data?.message || `HTTP Error ${response.status}: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-    
-    return data;
-  }
-
-  async getCurrentUser(): Promise<User> {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/check`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    // Parse response regardless of status to get server message
-    let data = null;
-    if (response.headers.get("content-type")?.includes("application/json")) {
-      data = await response.json();
-    }
-
-    if (!response.ok) {
-      // Use server's error message if available, fallback to generic message
-      const errorMessage = data?.message || `HTTP Error ${response.status}: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    return data;
-  }
+export async function register(userData: RegisterData): Promise<User> {
+  const response = await apiClient.post<AuthResponse>('/auth/register', userData, { timeout: TIMEOUT });
+  storeTokens(response.data.accessToken, response.data.refreshToken);
+  return response.data.user;
 }
 
-export default new AuthService();
+export async function login(credentials: LoginCredentials): Promise<User> {
+  const response = await apiClient.post<AuthResponse>('/auth/login', credentials, { timeout: TIMEOUT });
+  console.debug('[auth] login response data:', response.data);
+  storeTokens(response.data.accessToken, response.data.refreshToken);
+  return response.data.user;
+}
+
+export async function logout() {
+  const refreshToken = getRefreshToken();
+  const response = await apiClient.post('/auth/logout', { refreshToken }, { timeout: TIMEOUT });
+  clearTokens();
+  return response.data;
+}
+
+export async function getCurrentUser(): Promise<User> {
+  const response = await apiClient.get<User>('/auth/check', { timeout: TIMEOUT });
+  return response.data;
+}

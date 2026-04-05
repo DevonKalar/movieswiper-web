@@ -1,110 +1,90 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AuthContext } from './AuthContext';
-import { useEffect, useState } from 'react';
-import authService from '@services/auth';
-import type { 
-  User, 
-  UserApiResponse, 
-  LoginCredentials,
-  RegisterData } from '@/types/auth';
+import { getCurrentUser, login, logout, register } from '@services/auth';
+import { addToWatchlist } from '@services/authWatchlist';
+import { getWatchlist as getGuestWatchlist, clearWatchlist as clearGuestWatchlist } from '@services/guestWatchlist';
+import { queryKeys } from '@/queries/keys';
+import type { LoginCredentials, RegisterData } from '@/types/auth';
 import type { ProviderProps } from '@/types/provider';
 
+async function syncGuestWatchlist(): Promise<void> {
+  const guestMovies = await getGuestWatchlist();
+  if (guestMovies.length > 0) {
+    await addToWatchlist(guestMovies);
+  }
+  clearGuestWatchlist();
+}
+
 const AuthProvider = ({ children }: ProviderProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const queryClient = useQueryClient();
 
-  async function checkAuthStatus(): Promise<void> {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const rawData: UserApiResponse = await authService.getCurrentUser();
-      const userData: User = {
-        firstName: rawData.firstName,
-        lastName: rawData.lastName,
-        email: rawData.email,
-        id: rawData.id,
-      };
-      setUser(userData);
-      setIsAuthenticated(true);
-    } catch (error) {
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
+  const { data: user, isError, isPending: isCheckingAuth } = useQuery({
+    queryKey: queryKeys.auth.currentUser(),
+    queryFn: getCurrentUser,
+    staleTime: Infinity,
+    retry: false,
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: (credentials: LoginCredentials) => login(credentials),
+    onSuccess: async (data) => {
+      queryClient.setQueryData(queryKeys.auth.currentUser(), data);
+      await syncGuestWatchlist();
+      queryClient.invalidateQueries({ queryKey: queryKeys.watchlist.list() });
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      queryClient.setQueryData(queryKeys.auth.currentUser(), null);
+      queryClient.removeQueries({ queryKey: queryKeys.watchlist.all });
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: (data: RegisterData) => register(data),
+    onSuccess: async (data) => {
+      queryClient.setQueryData(queryKeys.auth.currentUser(), data);
+      await syncGuestWatchlist();
+      queryClient.invalidateQueries({ queryKey: queryKeys.watchlist.list() });
+    },
+  });
+
+  const isAuthenticated = !isError && !!user?.id;
+  const isLoading =
+    isCheckingAuth ||
+    loginMutation.isPending ||
+    logoutMutation.isPending ||
+    registerMutation.isPending;
+  const error = (loginMutation.error ||
+    logoutMutation.error ||
+    registerMutation.error) as Error | null;
+
+  async function handleLogin(credentials: LoginCredentials): Promise<void> {
+    await loginMutation.mutateAsync(credentials);
   }
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  async function login(credentials: LoginCredentials): Promise<void> {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const rawData: UserApiResponse = await authService.login(credentials);
-      const userData: User = {
-        firstName: rawData.firstName,
-        lastName: rawData.lastName,
-        email: rawData.email,
-        id: rawData.id,
-      };
-      setUser(userData);
-      setIsAuthenticated(true);
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error('Login failed');
-      setError(err);
-    } finally {
-      setIsLoading(false);
-    }
+  async function handleLogout(): Promise<void> {
+    await logoutMutation.mutateAsync();
   }
 
-  async function logout(): Promise<void> {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await authService.logout();
-      setUser(null);
-      setIsAuthenticated(false);
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error('Logout failed');
-      setError(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function register(registerData: RegisterData): Promise<void> {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const rawData: UserApiResponse = await authService.register(registerData);
-      const userData: User = {
-        firstName: rawData.firstName,
-        lastName: rawData.lastName,
-        email: rawData.email,
-        id: rawData.id,
-      };
-      setUser(userData);
-      setIsAuthenticated(true);
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error('Register failed');
-      setError(err);
-    } finally {
-      setIsLoading(false);
-    }
+  async function handleRegister(registerData: RegisterData): Promise<void> {
+    await registerMutation.mutateAsync(registerData);
   }
 
   return (
-    <AuthContext.Provider value={{ 
-      isAuthenticated, 
-      user,
-      isLoading, 
-      error, 
-      login, 
-      logout, 
-      register }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user: user ?? null,
+        isLoading,
+        error,
+        login: handleLogin,
+        logout: handleLogout,
+        register: handleRegister,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

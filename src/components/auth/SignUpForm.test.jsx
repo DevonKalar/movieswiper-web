@@ -1,13 +1,13 @@
 import SignUpForm from './SignUpForm';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import authService from '@services/auth';
+import { register } from '@services/auth';
 import AuthProvider from '@providers/AuthProvider';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 
 vi.mock('@services/auth');
 describe('Signgit lopForm', () => {
   beforeEach(() => {
-    authService.register.mockClear();
+    register.mockClear();
   });
   const renderComponent = () => {
     return render(
@@ -60,7 +60,7 @@ describe('Signgit lopForm', () => {
     fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { value: 'Password123' } });
     fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
     await waitFor(() => {
-      expect(authService.register).toHaveBeenCalledWith({
+      expect(register).toHaveBeenCalledWith({
         email: 'test@example.com',
         firstName: 'Test',
         lastName: 'User',
@@ -70,7 +70,7 @@ describe('Signgit lopForm', () => {
   });
   test('shows error message on registration failure', async () => {
     // mock failed registration response
-    authService.register.mockRejectedValue(new Error('Registration failed'));
+    register.mockRejectedValue(new Error('Registration failed'));
     renderComponent();
     // proceed to second stage
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@example.com' } });
@@ -86,4 +86,3 @@ describe('Signgit lopForm', () => {
     });
   });
 });
-

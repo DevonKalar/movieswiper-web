@@ -1,12 +1,7 @@
 import '@testing-library/jest-dom';
-import { vi, beforeAll, afterEach } from 'vitest';
+import { vi, afterEach } from 'vitest';
 
-// Mock fetch before all tests
-beforeAll(() => {
-  global.fetch = vi.fn();
-});
-
-// Clear call history after each test
+// Clear all mocks after each test
 afterEach(() => {
   vi.clearAllMocks();
 });

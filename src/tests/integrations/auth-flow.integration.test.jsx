@@ -2,36 +2,22 @@ import Discover from '@pages/Discover';
 import MainLayout from '@layouts/MainLayout';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { describe, test, vi, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import AuthProvider from '@providers/AuthProvider';
+import MockAdapter from 'axios-mock-adapter';
+import apiClient from '@services/apiClient';
+
+const mock = new MockAdapter(apiClient);
 
 describe('Authentication Flow Integration Test', () => {
   beforeEach(() => {
-    // Mock fetch globally
-    global.fetch = vi.fn((url) => {
-      if (url.includes('/register')) {
-        return Promise.resolve({
-          ok: true,
-          headers: new Headers({ 'content-type': 'application/json' }),
-          json: () => Promise.resolve({ firstName: 'Test', lastName: 'User' }),
-        });
-      }
-      if (url.includes('/login')) {
-        return Promise.resolve({
-          ok: true,
-          headers: new Headers({ 'content-type': 'application/json' }),
-          json: () => Promise.resolve({ firstName: 'Test', lastName: 'User' }),
-        });
-      }
-      if (url.includes('/logout')) {
-        return Promise.resolve({
-          ok: true,
-          headers: new Headers({ 'content-type': 'application/json' }),
-          json: () => Promise.resolve({}),
-        });
-      }
-      return Promise.reject(new Error('Unknown endpoint'));
-    });
+    mock.reset();
+    mock.onPost('/auth/register').reply(200, { firstName: 'Test', lastName: 'User' });
+    mock.onPost('/auth/login').reply(200, { firstName: 'Test', lastName: 'User' });
+    mock.onPost('/auth/logout').reply(200, {});
+    mock.onGet('/auth/check').reply(401, { message: 'Not authenticated' });
+    // Catch-all for other API calls (movie feeds, etc.)
+    mock.onAny().reply(200, { results: [] });
   });
 
   test('User can sign up, log in, and log out successfully', async () => {
