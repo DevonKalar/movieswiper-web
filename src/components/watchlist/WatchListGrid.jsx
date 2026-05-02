@@ -6,7 +6,7 @@ const WatchListGrid = ({movies, removeLikedMovie }) => {
   const { modalId, openModal, closeModal } = useModal();
 
   if (!movies || movies.length === 0) {
-    return <p role="status" aria-live="polite">No movies found matching your criteria.</p>;
+    return <p className="type-label-md" role="status" aria-live="polite">No movies found matching your criteria.</p>;
   }
 
   return (
@@ -17,7 +17,7 @@ const WatchListGrid = ({movies, removeLikedMovie }) => {
     >
       {movies.map((movie) => (
         <article 
-          className="group relative aspect-2/3 bg-primary-400 rounded-2xl" 
+          className="group relative aspect-2/3 bg-surface-overlay rounded-2xl"
           key={movie.id || movie.title}
           role="listitem"
         >
@@ -43,13 +43,13 @@ const WatchListGrid = ({movies, removeLikedMovie }) => {
             <CloseIcon height={32} width={32} className="rounded-full" aria-hidden="true" />
           </button>
           <div 
-            className="hidden group-hover:flex flex-col absolute top-0 left-0 w-full h-full p-4 justify-between opacity-0 hover:opacity-100 bg-blur text-white rounded-2xl border-1 border-primary-300"
+            className="hidden group-hover:flex flex-col absolute top-0 left-0 w-full h-full p-4 justify-between opacity-0 hover:opacity-100 bg-blur text-white rounded-2xl border-1 border-border-muted"
             aria-hidden="true"
           >
             <div className="overlay flex flex-row justify-between items-start gap-4">
               <div>
-                <h3>{movie.title}</h3>
-                <p>{movie.genres.join(", ")}</p>
+                <h3 className="type-heading-sm">{movie.title}</h3>
+                <p className="type-label-sm">{movie.genres.join(", ")}</p>
               </div>
               <button
                 className="h-6 w-6 p-0 rounded-full bg-transparent text-error-500"
@@ -64,7 +64,7 @@ const WatchListGrid = ({movies, removeLikedMovie }) => {
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => openModal(movie.id)}
-                className="border-2 border-secondary-500 w-full"
+                className="border-2 border-primary w-full"
                 type="button"
                 aria-label={`View details for ${movie.title}`}
                 tabIndex="-1"

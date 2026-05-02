@@ -1,10 +1,13 @@
 @import "tailwindcss";
 @import './fonts.css';
 @import "./theme.css";
+@import "./primitives.css";
+@import "./components.css";
+@import "./utilities.css";
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    @apply text-accent-500 m-0 italic font-bold;
+    @apply text-secondary m-0 italic font-bold;
   }
 
   h1 {
@@ -28,11 +31,11 @@
   }
 
   #root {
-    @apply bg-primary-500 text-primary-100 flex flex-col min-h-screen font-normal text-base;
+    @apply bg-surface text-text-default flex flex-col min-h-screen font-normal text-base;
   }
 
   button {
-    @apply italic h-12 font-bold bg-secondary-500 text-white py-2 px-4 rounded-full hover:bg-secondary-700 hover:cursor-pointer hover:opacity-75 flex items-center justify-center;
+    @apply italic h-12 font-bold bg-primary text-white py-2 px-4 rounded-full hover:bg-primary-active hover:cursor-pointer hover:opacity-75 flex items-center justify-center;
   }
 
   button[disabled] {
@@ -40,7 +43,7 @@
   }
 
   input {
-    @apply border-2 border-primary-100 bg-transparent text-primary-100 p-2 px-4 rounded-full focus:outline-none focus:border-secondary-500;
+    @apply border-2 border-border-default bg-transparent text-text-default p-2 px-4 rounded-full focus:outline-none focus:border-primary;
   }
 
   * {
@@ -80,24 +83,4 @@
 
 }
 
-@layer utilities {
-  .fade-in {
-    opacity: 0;
-    animation: fadeIn 0.3s ease-out forwards;
-  }
 
-  .fade-in-initial {
-    opacity: 0;
-  }
-
-  .fade-in-active {
-    opacity: 1;
-    transition: opacity 0.3s ease-out forwards;
-  }
-
-  @keyframes fadeIn {
-    to {
-      opacity: 1;
-    }
-  }
-}

@@ -63,14 +63,14 @@ const SignUpForm = () => {
   return (
     <>
     <div>
-      <h2>Sign Up</h2>
+      <h2 className="type-heading-md">Sign Up</h2>
       {authError && <p className="text-red-500 mt-2">{authError.message}</p>}
     </div>
 
     <div>
-      <p>Step {stage} of 2</p>
-      <div className="progress-track bg-secondary-100 w-full h-2 rounded-full mt-2">
-        <div className="progress-indicator bg-secondary-500 h-2 rounded-full" 
+      <p className="type-label-sm">Step {stage} of 2</p>
+      <div className="progress-track bg-primary-subtle w-full h-2 rounded-full mt-2">
+        <div className="progress-indicator bg-primary h-2 rounded-full"
           style={{ width: `${(stage) * 50}%` }}>
         </div>
       </div>
@@ -85,7 +85,7 @@ const SignUpForm = () => {
         <input type="email" id="email" 
           placeholder="Email" value={formData.email} 
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="border-0 border-b-2 border-primary-200 rounded-none" 
+          className="border-0 border-b-2 border-primary-subtle rounded-none" 
         />
         {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
         <button type="submit" className="mt-4">
@@ -103,7 +103,7 @@ const SignUpForm = () => {
           <input type="text" id="first-name" placeholder="Enter your first name" 
             value={formData.firstName} 
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-            className="border-0 border-b-2 border-primary-200 rounded-none"
+            className="border-0 border-b-2 border-primary-subtle rounded-none"
           />
         </div>
         <div className="flex-1 flex flex-col gap-2">
@@ -111,20 +111,20 @@ const SignUpForm = () => {
           <input type="text" id="last-name" placeholder="Enter your last name" 
             value={formData.lastName} 
             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-            className="border-0 border-b-2 border-primary-200 rounded-none" 
+            className="border-0 border-b-2 border-primary-subtle rounded-none" 
           />
         </div>
         <label htmlFor="password">Password</label>
         <input type="password" id="password" placeholder="Enter your password" 
           value={formData.password} 
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          className="border-0 border-b-2 border-primary-200 rounded-none"
+          className="border-0 border-b-2 border-primary-subtle rounded-none"
         />
         <label htmlFor="confirm-password">Confirm Password</label>
         <input type="password" id="confirm-password" placeholder="Confirm Password" 
           value={formData.confirmPassword} 
           onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-          className="border-0 border-b-2 border-primary-200 rounded-none"
+          className="border-0 border-b-2 border-primary-subtle rounded-none"
         />
         <div className="flex flex-col gap-2">
         {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
@@ -132,7 +132,7 @@ const SignUpForm = () => {
           Create Account <SignInIcon className="inline-block ml-2" height={20} width={20} />
         </button>
         <button onClick={handlePrev} 
-          className="mt-2 border-2 border-secondary-400 text-secondary-400 bg-transparent"
+          className="mt-2 border-2 border-primary-muted text-primary-muted bg-transparent"
         >
           Previous <GoPrevIcon className="inline-block ml-2" height={20} width={20} />
         </button>

@@ -27,15 +27,15 @@ const LoginForm = () => {
   return (
     <form id="login-form" onSubmit={handleLogin} className="flex flex-col gap-4 mt-2">
     <div>
-      <h2>Login</h2>
-      <p className="mt-2">Welcome back!<br /> Log in to your account below.</p>
+      <h2 className="type-heading-md">Login</h2>
+      <p className="type-prose-md mt-2">Welcome back!<br /> Log in to your account below.</p>
       {validationError && <p className="text-red-500 mt-2">{validationError}</p>}
     </div>
     <div className="flex flex-col gap-2">
     <label htmlFor="email">Email</label>
-    <input type="email" id="email" placeholder="Enter your email" onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="border-0 border-b-2 border-primary-200 rounded-none" />
+    <input type="email" id="email" placeholder="Enter your email" onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="border-0 border-b-2 border-primary-subtle rounded-none" />
     <label htmlFor="password">Password</label>
-    <input type="password" id="password" placeholder="Enter your password" onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="border-0 border-b-2 border-primary-200 rounded-none" />
+    <input type="password" id="password" placeholder="Enter your password" onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="border-0 border-b-2 border-primary-subtle rounded-none" />
     </div>
     <button type="submit" form="login-form" className="mt-4" disabled={isLoading}>
       Sign In <SignInIcon className="inline-block ml-2" height={20} width={20} />

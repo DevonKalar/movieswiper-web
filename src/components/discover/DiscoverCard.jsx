@@ -30,8 +30,8 @@ const DiscoverCard = ({ movie, onSwipe, isLoading, style, isTopCard = true, card
 
 	if (isLoading) {
     return (
-        <div className="absolute flex justify-center items-center w-full max-w-[500px] aspect-2/3 rounded-2xl border-2 bg-primary-400 animate-pulse">
-            <h4 className="text-3xl text-bold animate-pulse">Getting Movies...</h4>
+        <div className="absolute flex justify-center items-center w-full max-w-[500px] aspect-2/3 rounded-2xl border-2 bg-surface-overlay animate-pulse">
+            <h4 className="type-display-xs animate-pulse">Getting Movies...</h4>
         </div>
     );
   };
@@ -66,7 +66,7 @@ const DiscoverCard = ({ movie, onSwipe, isLoading, style, isTopCard = true, card
           </div>
         )}
         <div>
-          <img className={`bg-primary-400 object-cover aspect-2/3`} src={movie.posterUrl} alt={`${movie.title} movie poster`} />
+          <img className={`bg-surface-overlay object-cover aspect-2/3`} src={movie.posterUrl} alt={`${movie.title} movie poster`} />
           <div className={`flex flex-row group absolute bottom-0 left-0 right-0 justify-center items-end gap-4 h-full py-4 opacity-0 hover:opacity-100 focus-within:opacity-100 text-white rounded-2xl `} 
             role="group"
             aria-label="Movie actions"
@@ -87,7 +87,7 @@ const DiscoverCard = ({ movie, onSwipe, isLoading, style, isTopCard = true, card
             </button>
           </div>
           <button onClick={() => openModal(movie.id)} className="absolute top-4 right-4 h-10 w-10 p-0 rounded-full text-white bg-transparent z-50" aria-label={`View details for ${movie.title}`}>
-            <InfoIcon className="w-8 h-8 bg-secondary-500 rounded-full" aria-hidden="true" />
+            <InfoIcon className="w-8 h-8 bg-primary rounded-full" aria-hidden="true" />
           </button>
         </div>
       </article>

@@ -128,7 +128,7 @@ const RangeSlider = ({ min, max, step, value, onChange, label }) => {
     <div className="w-full p-4">
       {/* Value display */}
       <div className="flex items-center mb-4">
-        <h4 className="text-accent-500">{`${label || 'Range'} ${localRange.min} - ${localRange.max}`}</h4>
+        <h4 className="type-heading-sm text-secondary">{`${label || 'Range'} ${localRange.min} - ${localRange.max}`}</h4>
       </div>
 
       {/* Visual track and handles */}
@@ -138,11 +138,11 @@ const RangeSlider = ({ min, max, step, value, onChange, label }) => {
         onClick={handleTrackClick}
       >
         {/* Background track */}
-        <div className="absolute w-full h-full bg-primary-300 rounded-full" />
+        <div className="absolute w-full h-full bg-surface-muted rounded-full" />
         
         {/* Active range highlight */}
         <div 
-          className="absolute h-full bg-secondary-500"
+          className="absolute h-full bg-primary"
           style={{
             left: `${minPosition}%`,
             width: `${maxPosition - minPosition}%`
@@ -151,7 +151,7 @@ const RangeSlider = ({ min, max, step, value, onChange, label }) => {
         
         {/* Min handle */}
         <div 
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 md:h-6 md:w-6 bg-white rounded-full border-2 border-accent-500 cursor-grab active:cursor-grabbing select-none touch-none z-10 focus:outline-none focus:ring-2 focus:ring-accent-500"
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 md:h-6 md:w-6 bg-white rounded-full border-2 border-secondary cursor-grab active:cursor-grabbing select-none touch-none z-10 focus:outline-none focus:ring-2 focus:ring-secondary"
           style={{ left: `${minPosition}%` }}
           onMouseDown={(e) => {
             e.stopPropagation();
@@ -172,7 +172,7 @@ const RangeSlider = ({ min, max, step, value, onChange, label }) => {
         
         {/* Max handle */}
         <div 
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 md:h-6 md:w-6 bg-white rounded-full border-2 border-accent-500 cursor-grab active:cursor-grabbing select-none touch-none z-10 focus:outline-none focus:ring-2 focus:ring-accent-500"
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 md:h-6 md:w-6 bg-white rounded-full border-2 border-secondary cursor-grab active:cursor-grabbing select-none touch-none z-10 focus:outline-none focus:ring-2 focus:ring-secondary"
           style={{ left: `${ maxPosition}%` }}
           onMouseDown={(e) => {
             e.stopPropagation();

@@ -57,7 +57,7 @@ const PopOver = ({
   return (
     <div className={`popover flex flex-col justify-center relative ${className}`}>
       <div className="flex flex-row justify-between items-center">
-        <h4 className="m-0" id={labelId}>
+        <h4 className="type-heading-sm m-0" id={labelId}>
           {label}
         </h4>
         <button
@@ -75,7 +75,7 @@ const PopOver = ({
       {isOpen && (
         <div
           id={popoverId}
-          className={`w-full flex flex-row flex-wrap absolute top-full bg-primary-500 border-2 rounded-2xl p-4 my-2 gap-2 overflow-y-auto z-10 ${popoverClassName}`}
+          className={`w-full flex flex-row flex-wrap absolute top-full bg-surface border-2 rounded-2xl p-4 my-2 gap-2 overflow-y-auto z-10 ${popoverClassName}`}
           role="dialog"
           aria-labelledby={labelId}
         >
