@@ -27,8 +27,8 @@ const LoginForm = () => {
   return (
     <form id="login-form" onSubmit={handleLogin} className="flex flex-col gap-4 mt-2">
     <div>
-      <h2>Login</h2>
-      <p className="mt-2">Welcome back!<br /> Log in to your account below.</p>
+      <h2 className="type-heading-md">Login</h2>
+      <p className="type-prose-md mt-2">Welcome back!<br /> Log in to your account below.</p>
       {validationError && <p className="text-red-500 mt-2">{validationError}</p>}
     </div>
     <div className="flex flex-col gap-2">

@@ -16,10 +16,10 @@ const WatchListFilter = ({ filters, addFilter, removeFilter, availableGenres, av
 				/>
 			),
 			genre: () => availableGenres.map((genre) => (
-				<button 
-					key={genre} 
+				<button
+					key={genre}
 					onClick={() => addFilter('genre', genre)}
-					className={`flex h-8 p-2 px-4 text-sm outline border-1 ${
+					className={`type-label-sm flex h-8 p-2 px-4 outline border-1 ${
 						filters.genre.includes(genre) ? 'bg-primary' : ''
 					}`}
 				>
@@ -27,10 +27,10 @@ const WatchListFilter = ({ filters, addFilter, removeFilter, availableGenres, av
 				</button>
 			)),
 			decade: () => availableDecades.map((decade) => (
-				<button 
-					key={decade} 
+				<button
+					key={decade}
 					onClick={() => addFilter('decade', decade)}
-					className={`flex h-8 p-2 px-4 text-sm outline border-1 ${
+					className={`type-label-sm flex h-8 p-2 px-4 outline border-1 ${
 						filters.decade.includes(decade) ? 'bg-primary' : ''
 					}`}
 				>
@@ -39,7 +39,7 @@ const WatchListFilter = ({ filters, addFilter, removeFilter, availableGenres, av
 			))
 		};
 
-		return filterRenderers[category]?.() || <p>No options available</p>;
+		return filterRenderers[category]?.() || <p className="type-label-sm">No options available</p>;
 	};
 
 	return (
@@ -83,7 +83,7 @@ const WatchListFilter = ({ filters, addFilter, removeFilter, availableGenres, av
               return (
                 <div
                   key={`${filterCategory}-${filterValue.min}-${filterValue.max}`}
-                  className="flex flex-row items-center text-sm gap-1 outline border-1 px-4 rounded-4xl"
+                  className="type-label-sm flex flex-row items-center gap-1 outline border-1 px-4 rounded-4xl"
                 >
                   <span>
                     {filterValue.min} - {filterValue.max} ({filterCategory})
@@ -105,7 +105,7 @@ const WatchListFilter = ({ filters, addFilter, removeFilter, availableGenres, av
               return filterValue.map((value) => (
                 <div
                   key={`${filterCategory}-${value}`}
-                  className="flex flex-row items-center text-sm gap-1 outline border-1 px-4 rounded-4xl"
+                  className="type-label-sm flex flex-row items-center gap-1 outline border-1 px-4 rounded-4xl"
                 >
                   <span>
                     {value}{filterCategory === 'decade' ? 's' : ''} ({filterCategory})

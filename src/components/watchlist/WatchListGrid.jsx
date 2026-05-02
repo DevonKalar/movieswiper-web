@@ -6,7 +6,7 @@ const WatchListGrid = ({movies, removeLikedMovie }) => {
   const { modalId, openModal, closeModal } = useModal();
 
   if (!movies || movies.length === 0) {
-    return <p role="status" aria-live="polite">No movies found matching your criteria.</p>;
+    return <p className="type-label-md" role="status" aria-live="polite">No movies found matching your criteria.</p>;
   }
 
   return (
@@ -48,8 +48,8 @@ const WatchListGrid = ({movies, removeLikedMovie }) => {
           >
             <div className="overlay flex flex-row justify-between items-start gap-4">
               <div>
-                <h3>{movie.title}</h3>
-                <p>{movie.genres.join(", ")}</p>
+                <h3 className="type-heading-sm">{movie.title}</h3>
+                <p className="type-label-sm">{movie.genres.join(", ")}</p>
               </div>
               <button
                 className="h-6 w-6 p-0 rounded-full bg-transparent text-error-500"

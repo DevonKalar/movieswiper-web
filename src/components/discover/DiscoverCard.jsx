@@ -31,7 +31,7 @@ const DiscoverCard = ({ movie, onSwipe, isLoading, style, isTopCard = true, card
 	if (isLoading) {
     return (
         <div className="absolute flex justify-center items-center w-full max-w-[500px] aspect-2/3 rounded-2xl border-2 bg-surface-overlay animate-pulse">
-            <h4 className="text-3xl text-bold animate-pulse">Getting Movies...</h4>
+            <h4 className="type-display-xs animate-pulse">Getting Movies...</h4>
         </div>
     );
   };

@@ -91,8 +91,8 @@ const Header = () => {
                         </nav>
                         {isAuthenticated ? (
                             <>
-                                <p className="self-center">Logged in as {user.firstName}, not you?</p>
-                                <button className="block w-full text-sm text-text-default" onClick={handleLogout}>
+                                <p className="type-label-md self-center">Logged in as {user.firstName}, not you?</p>
+                                <button className="type-label-sm block w-full text-text-default" onClick={handleLogout}>
                                     Sign Out
                                     <SignOutIcon className="inline-block ml-2" height={16} width={16} />
                                 </button>

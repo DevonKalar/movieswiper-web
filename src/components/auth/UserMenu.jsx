@@ -23,13 +23,13 @@ const UserMenu = () => {
 
     {popovers["user-menu"] && (
     <div className="popover flex flex-col gap-4 absolute right-0 top-full mt-6 w-48 bg-surface-raised p-4 rounded-2xl shadow-lg z-10">
-      <p className="text-white">Hello, {user.firstName}!</p>
+      <p className="type-label-md text-white">Hello, {user.firstName}!</p>
       <ul className="flex flex-col gap-2">
-      <li className="block w-full text-left text-sm text-text-default">Profile</li>
-      <li className="block w-full text-left text-sm text-text-default">Settings</li>
-      <li className="block w-full text-left text-sm text-text-default">Account</li>
+      <li className="type-label-sm block w-full text-left text-text-default">Profile</li>
+      <li className="type-label-sm block w-full text-left text-text-default">Settings</li>
+      <li className="type-label-sm block w-full text-left text-text-default">Account</li>
       </ul>
-      <button className="block w-full text-sm text-text-default" onClick={handleLogout}>
+      <button className="type-label-sm block w-full text-text-default" onClick={handleLogout}>
       Sign Out
       <SignOutIcon className="inline-block ml-2" height={16} width={16} />
       </button>

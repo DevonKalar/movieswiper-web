@@ -39,10 +39,10 @@ const MovieModal = ({ movie, isOpen, closeModal }) => {
 						{movie.ratings && 
               <div className="border-2 gap-2 flex flex-row justify-start items-center border-surface-raised bg-surface-raised w-fit p-1 px-2 rounded-full">
                 <StarIcon className="w-4 h-4 text-secondary" />
-                <p className="text-sm text-white">{movie.ratings.toFixed(1)} </p>
+                <p className="type-label-sm text-white">{movie.ratings.toFixed(1)} </p>
 						  </div>}
-						<h2 id={`modal-title-${movie.id}`} className="text-5xl">{movie.title}</h2>
-						<p className="text-sm text-white mb-2">{movie.genres.join(", ")}</p>
+						<h2 id={`modal-title-${movie.id}`} className="type-display-md">{movie.title}</h2>
+						<p className="type-label-sm text-white mb-2">{movie.genres.join(", ")}</p>
 						<ScrollableText id={`modal-desc-${movie.id}`}>{movie.description}</ScrollableText>
 						<div className="flex flex-row flex-wrap justify-start items-start gap-2 mt-4">
 							<button className="w-full border-2 border-primary"

@@ -63,12 +63,12 @@ const SignUpForm = () => {
   return (
     <>
     <div>
-      <h2>Sign Up</h2>
+      <h2 className="type-heading-md">Sign Up</h2>
       {authError && <p className="text-red-500 mt-2">{authError.message}</p>}
     </div>
 
     <div>
-      <p>Step {stage} of 2</p>
+      <p className="type-label-sm">Step {stage} of 2</p>
       <div className="progress-track bg-primary-subtle w-full h-2 rounded-full mt-2">
         <div className="progress-indicator bg-primary h-2 rounded-full"
           style={{ width: `${(stage) * 50}%` }}>

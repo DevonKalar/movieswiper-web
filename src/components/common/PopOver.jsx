@@ -57,7 +57,7 @@ const PopOver = ({
   return (
     <div className={`popover flex flex-col justify-center relative ${className}`}>
       <div className="flex flex-row justify-between items-center">
-        <h4 className="m-0" id={labelId}>
+        <h4 className="type-heading-sm m-0" id={labelId}>
           {label}
         </h4>
         <button

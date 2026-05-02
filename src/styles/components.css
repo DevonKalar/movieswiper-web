@@ -1,4 +1,8 @@
 @layer components {
+    .type-display-xs {
+        @apply text-3xl font-bold;
+    }
+
     .type-display-sm {
         @apply text-4xl font-bold;
     }
@@ -10,7 +14,7 @@
     .type-display-lg {
         @apply text-6xl font-bold;
     }
-    
+
     .type-heading-sm {
         @apply text-lg font-bold;
     }
@@ -45,6 +49,14 @@
 
     .type-prose-lg {
         @apply text-lg leading-8;
+    }
+
+    .type-chat-message {
+        @apply text-sm font-light;
+    }
+
+    .type-chat-meta {
+        @apply text-sm font-light italic;
     }
 
     .btn {

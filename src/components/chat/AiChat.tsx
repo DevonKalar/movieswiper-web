@@ -60,7 +60,7 @@ const AiChat = () => {
 			<div className="flex flex-row items-center justify-between p-4 gap-2 border-b-1">
 				<div className="flex flex-row items-center gap-2">
 				<img src={movioProfilePic} alt="AI Avatar" className="w-12 h-12 rounded-full bg-primary-subtle" />
-				<p className="text-primary">Movio</p>
+				<p className="type-label-md text-primary">Movio</p>
 				</div>
 				<button
 					className="bg-transparent px-2 h-8 text-primary"
@@ -72,14 +72,14 @@ const AiChat = () => {
 					const isAgent = chat.sender === 'agent';
 				return (
 					<div key={`message-${index}`} className={`flex flex-col ${isAgent ? 'items-start mr-8' : 'items-end ml-8'} gap-1`}>
-						<p className={`p-3 px-4 rounded-3xl font-light ${isAgent ? 'rounded-bl-none text-white bg-surface' : 'rounded-br-none text-primary-active bg-primary-subtle'} text-sm`}>{chat.content}</p>
-						<p className="text-sm text-primary-muted font-light italic">{isAgent ? 'Movio' : 'You'}</p>
+						<p className={`type-chat-message p-3 px-4 rounded-3xl ${isAgent ? 'rounded-bl-none text-white bg-surface' : 'rounded-br-none text-primary-active bg-primary-subtle'}`}>{chat.content}</p>
+						<p className="type-chat-meta text-primary-muted">{isAgent ? 'Movio' : 'You'}</p>
 					</div>
 					);
 				})}
 				{isAgentTyping && (<div className="flex flex-col items-start mr-8 gap-1">
-					<p className="p-3 px-4 rounded-3xl font-light rounded-bl-none text-white bg-surface text-sm animate-pulse">Movio is typing...</p>
-					<p className="text-sm text-primary-muted font-light italic">Movio</p>
+					<p className="type-chat-message p-3 px-4 rounded-3xl rounded-bl-none text-white bg-surface animate-pulse">Movio is typing...</p>
+					<p className="type-chat-meta text-primary-muted">Movio</p>
 				</div>)}
 			</div>
 			<div className="border-t-1 p-2">

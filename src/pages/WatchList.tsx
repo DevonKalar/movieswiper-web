@@ -50,12 +50,12 @@ const WatchList = () => {
       <main className="flex-1 flex items-center justify-center overflow-hidden py-12 px-4">
         <section className="w-full max-w-7xl relative mx-auto px-4 md:px-8 xl:px-0 ">
           <div className="flex flex-col items-center h-full justify-center gap-4 mb-12">
-            <h1 className="animate-pulse">Loading your watchlist...</h1>
+            <h1 className="type-display-sm animate-pulse">Loading your watchlist...</h1>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 my-2">
             {SKELETON_ARRAY.map(() => (
               <div className="flex justify-center items-center aspect-2/3 bg-surface-overlay rounded-2xl animate-pulse mb-4">
-                <p role="status" aria-live="polite" >loading</p>
+                <p className="type-label-sm" role="status" aria-live="polite">loading</p>
               </div>
             ))}
           </div>
@@ -68,8 +68,8 @@ const WatchList = () => {
     return (
         <main className="flex-1 flex items-center justify-center overflow-hidden py-12 px-4">
           <div className="flex flex-col items-center h-full justify-center gap-4">
-            <h1 className="text-3xl">Your Watchlist Is Empty</h1>
-            <p className="text-center">Explore great movies and swipe to add to your watchlist.</p>
+            <h1 className="type-display-xs">Your Watchlist Is Empty</h1>
+            <p className="type-prose-md text-center">Explore great movies and swipe to add to your watchlist.</p>
             <Link to="/" className="px-6 h-12 flex flex-col align-center justify-center bg-primary text-white rounded-full hover:opacity-75">Discover Movies</Link>
           </div>
         </main>
@@ -79,7 +79,7 @@ const WatchList = () => {
   return (
       <main ref={topRef} className="flex-1 overflow-hidden py-12">
         <div className="w-full max-w-7xl relative mx-auto px-4 md:px-8 xl:px-0 ">
-          <h1>Your Watchlist</h1>
+          <h1 className="type-display-sm">Your Watchlist</h1>
           <WatchListFilter
             filters={filters}
             addFilter={addFilter}

@@ -128,7 +128,7 @@ const RangeSlider = ({ min, max, step, value, onChange, label }) => {
     <div className="w-full p-4">
       {/* Value display */}
       <div className="flex items-center mb-4">
-        <h4 className="text-secondary">{`${label || 'Range'} ${localRange.min} - ${localRange.max}`}</h4>
+        <h4 className="type-heading-sm text-secondary">{`${label || 'Range'} ${localRange.min} - ${localRange.max}`}</h4>
       </div>
 
       {/* Visual track and handles */}
