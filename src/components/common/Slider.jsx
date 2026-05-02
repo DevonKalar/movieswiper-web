@@ -84,7 +84,7 @@ const maxPosition = valueToPosition(range.max);
       <div className="slider-track-container mt-4">
         <div 
           ref={sliderRef}
-          className="slider-track relative h-8 bg-gray-200 rounded-full cursor-pointer"
+          className="slider-track relative h-8 bg-surface-muted rounded-full cursor-pointer"
           onClick={(e) => {
             if (dragState.isDragging) return;
 
@@ -108,14 +108,14 @@ const maxPosition = valueToPosition(range.max);
           }} 
         >
           <div 
-            className="slider-active-range absolute h-full bg-secondary-500 rounded-full" 
+            className="slider-active-range absolute h-full bg-primary rounded-full"
             style={{ 
               left: `${minPosition}%`, 
               right: `${100 - maxPosition}%` 
             }} 
           />
           <div 
-            className={`slider-handle-min touch-none absolute top-1/2 transform -translate-y-1/2 -translate-x-2.5 w-8 h-8 bg-white border-2 border-accent-500 rounded-full cursor-grab
+            className={`slider-handle-min touch-none absolute top-1/2 transform -translate-y-1/2 -translate-x-2.5 w-8 h-8 bg-white border-2 border-secondary rounded-full cursor-grab
                shadow-md transition-transform
               ${dragState.isDragging && dragState.dragType === 'min' ? 'cursor-grabbing' : ''}`}
             style={{ left: `${minPosition}%` }}
@@ -123,7 +123,7 @@ const maxPosition = valueToPosition(range.max);
             onTouchStart={(e) => handleDragStart(e, 'min')}
           />
           <div 
-            className={`slider-handle-max touch-none absolute w-8 h-8 bg-white border-2 border-accent-500 rounded-full cursor-grab
+            className={`slider-handle-max touch-none absolute w-8 h-8 bg-white border-2 border-secondary rounded-full cursor-grab
               top-1/2 transform -translate-y-1/2 translate-x-2.5 shadow-md transition-transform
               ${dragState.isDragging && dragState.dragType === 'max' ? 'cursor-grabbing' : ''}`}
             style={{ right: `${100 - maxPosition}%` }}

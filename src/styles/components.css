@@ -1,0 +1,53 @@
+@layer components {
+    .type-display-sm {
+        @apply text-4xl font-bold;
+    }
+
+    .type-display-md {
+        @apply text-5xl font-bold;
+    }
+
+    .type-display-lg {
+        @apply text-6xl font-bold;
+    }
+    
+    .type-heading-sm {
+        @apply text-lg font-bold;
+    }
+
+    .type-heading-md {
+        @apply text-2xl font-bold;
+    }
+
+    .type-heading-lg {
+        @apply text-4xl font-bold;
+    }
+
+    .type-label-sm {
+        @apply text-sm font-normal;
+    }
+
+    .type-label-md {
+        @apply text-base font-normal;
+    }
+
+    .type-label-lg {
+        @apply text-lg font-normal;
+    }
+
+    .type-prose-sm {
+        @apply text-sm leading-6;
+    }
+
+    .type-prose-md {
+        @apply text-base leading-7;
+    }
+
+    .type-prose-lg {
+        @apply text-lg leading-8;
+    }
+
+    .btn {
+        @apply px-4 py-2 bg-blue-500 text-white rounded;
+    }
+}

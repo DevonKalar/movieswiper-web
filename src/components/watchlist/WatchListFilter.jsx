@@ -20,7 +20,7 @@ const WatchListFilter = ({ filters, addFilter, removeFilter, availableGenres, av
 					key={genre} 
 					onClick={() => addFilter('genre', genre)}
 					className={`flex h-8 p-2 px-4 text-sm outline border-1 ${
-						filters.genre.includes(genre) ? 'bg-secondary-500' : ''
+						filters.genre.includes(genre) ? 'bg-primary' : ''
 					}`}
 				>
 					{genre}
@@ -31,7 +31,7 @@ const WatchListFilter = ({ filters, addFilter, removeFilter, availableGenres, av
 					key={decade} 
 					onClick={() => addFilter('decade', decade)}
 					className={`flex h-8 p-2 px-4 text-sm outline border-1 ${
-						filters.decade.includes(decade) ? 'bg-secondary-500' : ''
+						filters.decade.includes(decade) ? 'bg-primary' : ''
 					}`}
 				>
 					{decade}s

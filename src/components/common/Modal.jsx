@@ -30,7 +30,7 @@ const Modal = ({ children, buttonText, buttonClass, modalClass }) => {
       </button>
       {isOpen && <div className={`modal-overlay w-full h-full fixed top-0 left-0 flex items-center justify-center z-40 bg-black/50 backdrop-blur-xs fade-in ${isOpen ? 'block' : 'hidden'}`}>
         <div
-          className={`modal-content p-8 bg-primary-500 border-2 rounded-2xl shadow-lg relative ${modalClass}`}
+          className={`modal-content p-8 bg-surface border-2 rounded-2xl shadow-lg relative ${modalClass}`}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -38,7 +38,7 @@ const Modal = ({ children, buttonText, buttonClass, modalClass }) => {
         >
           {children}
           <button
-            className="absolute top-4 right-4 w-fit h-fit p-0 rounded-full bg-secondary-500 text-white z-50"
+            className="absolute top-4 right-4 w-fit h-fit p-0 rounded-full bg-primary text-white z-50"
             onClick={toggleModal}
             type="button"
             aria-label="Close modal"
