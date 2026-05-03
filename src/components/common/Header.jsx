@@ -38,7 +38,9 @@ const Header = () => {
                     </nav>
                 </div>
                 {isAuthenticated ? (
-                    <UserMenu />
+                    <div className="flex justify-end">
+                        <UserMenu />
+                    </div>
                 ) : (
                     <div className="navbar-buttons-wrapper flex flex-row justify-end gap-2">
                         <Modal buttonText="Login"

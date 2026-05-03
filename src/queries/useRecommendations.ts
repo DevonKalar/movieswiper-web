@@ -35,11 +35,16 @@ export function useRecommendationsFeed() {
     setFeedPosition(next);
   }
 
+  function moveToPrev(): void {
+    if (feedPosition > 0) setFeedPosition(feedPosition - 1);
+  }
+
   return {
     movieQueue,
     feedPosition,
     isLoading,
     error: error as Error | null,
     moveToNext,
+    moveToPrev,
   };
 }
