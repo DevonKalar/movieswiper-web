@@ -1,30 +1,21 @@
+import { forwardRef, useImperativeHandle } from 'react';
 import { LikeIcon, PassIcon, RejectIcon, HeartIcon, InfoIcon } from '@icons';
 import MovieModal from "../common/MovieModal";
 import { useModal } from "@hooks/useModal";
 import { useCardGestures } from "@hooks/useCardGestures";
 
-const DiscoverCard = ({ movie, onSwipe, onNavigate, enterFrom = null, isActive = true, cardRef = null }) => {
+const DiscoverCard = forwardRef(({ movie, onSwipe, onNavigate, onVerticalDrag, isActive = true, cardRef = null }, ref) => {
   const { modalId, openModal, closeModal } = useModal();
 
   const {
     transform,
     isDragging,
     swipeDirection,
-    isProcessingSwipe,
     gestureHandlers,
     triggerSwipe,
-  } = useCardGestures(onSwipe, onNavigate);
+  } = useCardGestures(onSwipe, onNavigate, { onVerticalDrag });
 
-  const handleActionButton = (e) => {
-    e.preventDefault();
-    triggerSwipe(e.currentTarget.value);
-  };
-
-  const entranceClass = enterFrom === 'bottom'
-    ? 'slide-in-from-bottom'
-    : enterFrom === 'top'
-      ? 'slide-in-from-top'
-      : '';
+  useImperativeHandle(ref, () => ({ triggerSwipe }), [triggerSwipe]);
 
   return (
     <>
@@ -33,14 +24,13 @@ const DiscoverCard = ({ movie, onSwipe, onNavigate, enterFrom = null, isActive =
         tabIndex={isActive ? 0 : -1}
         style={{ transform }}
         {...(isActive ? gestureHandlers : {})}
-        className={`relative rounded-2xl overflow-hidden select-none touch-none w-full h-full
-          ${isDragging ? 'cursor-grabbing duration-0' : 'cursor-grab'}
-          ${entranceClass}`}
+        className={`relative w-full h-full rounded-2xl overflow-hidden select-none touch-none z-10
+          ${isDragging ? 'cursor-grabbing duration-0' : 'cursor-grab'}`}
         aria-hidden={!isActive}
       >
         {swipeDirection && (
           <div
-            className={`absolute inset-0 rounded-2xl border-2 z-10 flex items-center justify-center
+            className={`absolute inset-0 rounded-2xl border-2 z-20 flex items-center justify-center
               ${swipeDirection === 'right'
                 ? 'border-green-500 bg-green-500/25'
                 : 'border-red-500 bg-red-500/25'}`}
@@ -59,33 +49,6 @@ const DiscoverCard = ({ movie, onSwipe, onNavigate, enterFrom = null, isActive =
           draggable={false}
         />
 
-        <div
-          className="group absolute inset-0 flex flex-col justify-end items-center py-4 opacity-0 hover:opacity-100 focus-within:opacity-100"
-          role="group"
-          aria-label="Movie actions"
-        >
-          <div className="flex gap-4">
-            <button
-              onClick={handleActionButton}
-              disabled={isProcessingSwipe}
-              className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 rounded-full w-16 h-16 bg-error-500 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:opacity-100"
-              value="left"
-              aria-label={`Pass on ${movie.title}`}
-            >
-              <PassIcon aria-hidden="true" />
-            </button>
-            <button
-              onClick={handleActionButton}
-              disabled={isProcessingSwipe}
-              className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 rounded-full w-16 h-16 bg-success-500 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:opacity-100"
-              value="right"
-              aria-label={`Add ${movie.title} to watchlist`}
-            >
-              <LikeIcon aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-
         <button
           onClick={() => openModal(movie.id)}
           className="absolute top-4 right-4 h-10 w-10 p-0 rounded-full text-white bg-transparent z-50"
@@ -98,6 +61,8 @@ const DiscoverCard = ({ movie, onSwipe, onNavigate, enterFrom = null, isActive =
       <MovieModal movie={movie} isOpen={modalId === movie.id} closeModal={closeModal} />
     </>
   );
-};
+});
+
+DiscoverCard.displayName = 'DiscoverCard';
 
 export default DiscoverCard;

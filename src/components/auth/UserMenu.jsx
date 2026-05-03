@@ -22,7 +22,7 @@ const UserMenu = () => {
     </button>
 
     {popovers["user-menu"] && (
-    <div className="popover flex flex-col gap-4 absolute right-0 top-full mt-6 w-48 bg-surface-raised p-4 rounded-2xl shadow-lg z-10">
+    <div className="popover flex flex-col gap-4 absolute right-0 top-full mt-6 w-48 bg-surface-raised p-4 rounded-2xl shadow-lg z-50">
       <p className="type-label-md text-white">Hello, {user.firstName}!</p>
       <ul className="flex flex-col gap-2">
       <li className="type-label-sm block w-full text-left text-text-default">Profile</li>

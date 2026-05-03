@@ -4,7 +4,7 @@ const AXIS_THRESHOLD = 10;
 const SWIPE_THRESHOLD = 50;
 const ANIMATION_DURATION = 300;
 
-export const useCardGestures = (onSwipe, onNavigate) => {
+export const useCardGestures = (onSwipe, onNavigate, { onVerticalDrag } = {}) => {
   const [currentX, setCurrentX] = useState(0);
   const [currentY, setCurrentY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -24,6 +24,17 @@ export const useCardGestures = (onSwipe, onNavigate) => {
     isProcessingRef.current = true;
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    // Deck-managed vertical: fire immediately, no card-level exit animation
+    if (axisRef.current === 'vertical' && onVerticalDrag) {
+      onNavigate(direction);
+      setCurrentX(0); setCurrentY(0);
+      setSwipeDirection(null); setNavDirection(null); setIsExiting(false); setIsDragging(false);
+      axisRef.current = null;
+      committedDirectionRef.current = null;
+      isProcessingRef.current = false;
+      return;
+    }
 
     if (axisRef.current === 'vertical') {
       setIsExiting(true);
@@ -46,7 +57,7 @@ export const useCardGestures = (onSwipe, onNavigate) => {
       isProcessingRef.current = false;
       timeoutRef.current = null;
     }, ANIMATION_DURATION);
-  }, [onSwipe, onNavigate]);
+  }, [onSwipe, onNavigate, onVerticalDrag]);
 
   const handleDragStart = useCallback((e) => {
     if (isProcessingRef.current) return;
@@ -85,7 +96,11 @@ export const useCardGestures = (onSwipe, onNavigate) => {
         setSwipeDirection(null);
       }
     } else {
-      setCurrentY(diffY);
+      if (onVerticalDrag) {
+        onVerticalDrag(diffY);
+      } else {
+        setCurrentY(diffY);
+      }
       if (Math.abs(diffY) >= SWIPE_THRESHOLD) {
         const dir = diffY > 0 ? 'down' : 'up';
         committedDirectionRef.current = dir;
@@ -103,13 +118,16 @@ export const useCardGestures = (onSwipe, onNavigate) => {
     if (direction) {
       processGesture(direction);
     } else {
+      if (axisRef.current === 'vertical' && onVerticalDrag) {
+        onVerticalDrag(null); // signal snap-back to parent
+      }
       setCurrentX(0);
       setCurrentY(0);
       setSwipeDirection(null);
       setNavDirection(null);
       axisRef.current = null;
     }
-  }, [processGesture]);
+  }, [processGesture, onVerticalDrag]);
 
   useEffect(() => {
     if (!isDragging) return;
@@ -121,12 +139,28 @@ export const useCardGestures = (onSwipe, onNavigate) => {
     return () => controller.abort();
   }, [isDragging, handleDragMove, handleDragEnd]);
 
+  // Called by parent (action buttons) — shows overlay + animates card exit.
+  // Does NOT call onSwipe; the parent handles like/reject logic directly.
   const triggerSwipe = useCallback((direction) => {
     if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     axisRef.current = 'horizontal';
     setSwipeDirection(direction);
-    processGesture(direction);
-  }, [processGesture]);
+    setCurrentX(direction === 'right' ? 500 : -500);
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setCurrentX(0);
+      setCurrentY(0);
+      setSwipeDirection(null);
+      setNavDirection(null);
+      setIsExiting(false);
+      axisRef.current = null;
+      committedDirectionRef.current = null;
+      isProcessingRef.current = false;
+      timeoutRef.current = null;
+    }, ANIMATION_DURATION);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -135,10 +169,11 @@ export const useCardGestures = (onSwipe, onNavigate) => {
   }, []);
 
   const transform = (() => {
-    if (axisRef.current === 'vertical' || isExiting) {
+    if (!onVerticalDrag && (axisRef.current === 'vertical' || isExiting)) {
       return `translateY(${currentY}px)`;
     }
-    return `translateX(${currentX}px) rotate(${currentX * 0.05}deg)`;
+    const rotation = Math.sign(currentX) * Math.min(Math.abs(currentX * 0.05), 15);
+    return `translateX(${currentX}px) rotate(${rotation}deg)`;
   })();
 
   return {
