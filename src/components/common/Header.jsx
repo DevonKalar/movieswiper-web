@@ -67,7 +67,7 @@ const Header = () => {
                     Menu
                 </button>
                 {popovers["mobile-menu"] && (
-                    <div className="mobile-collapse-menu absolute right-0 top-full w-full bg-surface-raised p-4 mt-4 rounded-2xl flex flex-col gap-2 z-5 popover">
+                    <div className="mobile-collapse-menu absolute right-0 top-full w-full bg-surface-raised p-4 mt-4 rounded-2xl flex flex-col gap-2 z-50 popover">
                         <nav className="flex flex-col gap-2 justify-center items-end px-4 py-2">
                             <NavLink to="/" onClick={() => togglePopover("mobile-menu")} className="nav-link text-white">
                                 Discover
