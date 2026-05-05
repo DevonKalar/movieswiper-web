@@ -1,153 +1,155 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import DiscoverCard from "@components/discover/DiscoverCard";
 import ScreenReaderAnnouncement from "@components/common/ScreenReaderAnnouncement";
 import { useWatchlist } from "@/queries/useWatchlist";
 import { useRecommendationsFeed } from "@/queries/useRecommendations";
 import { useAnnouncement } from "@hooks/useAnnouncement.js";
-import { DownArrowIcon, PassIcon, HeartIcon } from "@icons";
 
-const ActionButtons = ({ hasPrev, currentMovie, goBack, goForward, handleSwipe, className = "" }) => (
-    <div className={`flex flex-col gap-3 ${className}`}>
-        <button
-            onClick={goBack}
-            disabled={!hasPrev}
-            className="not-italic font-normal p-0 w-12 h-12 rounded-full bg-primary disabled:opacity-40"
-            aria-label="Previous movie"
-        >
-            <DownArrowIcon className="rotate-180" />
-        </button>
-        <button
-            onClick={goForward}
-            className="not-italic font-normal p-0 w-12 h-12 rounded-full bg-primary"
-            aria-label="Next movie"
-        >
-            <DownArrowIcon />
-        </button>
-        <button
-            onClick={() => handleSwipe('left')}
-            disabled={!currentMovie}
-            className="not-italic font-normal p-0 w-12 h-12 rounded-full bg-error-500"
-            aria-label={currentMovie ? `Pass on ${currentMovie.title}` : 'Pass'}
-        >
-            <PassIcon />
-        </button>
-        <button
-            onClick={() => handleSwipe('right')}
-            disabled={!currentMovie}
-            className="not-italic font-normal p-0 w-12 h-12 rounded-full bg-success-500"
-            aria-label={currentMovie ? `Like ${currentMovie.title}` : 'Like'}
-        >
-            <HeartIcon />
-        </button>
-    </div>
-);
+const SWIPE_THRESHOLD = 50;
+const NAV_COOLDOWN_MS = 600;
+const REACTION_ANIMATION_MS = 380;
 
 const Discover = () => {
-    const { likeMovie, rejectMovie } = useWatchlist();
-    const { movieQueue, feedPosition, isLoading, moveToNext, moveToPrev } = useRecommendationsFeed();
+    const { likeMovie, rejectMovie, likedMovies, rejectedMovies } = useWatchlist();
+    const { movieQueue, feedPosition, isLoading, moveToNext, moveToPrev, fetchNextPage } = useRecommendationsFeed();
     const { announcement, announce } = useAnnouncement();
-    const cardRef = useRef(null);
-    const containerRef = useRef(null);
-    const activeCardRef = useRef(null);
-    const isSlidingRef = useRef(false);
 
-    const [slideY, setSlideY] = useState(0);
-    const [isSliding, setIsSliding] = useState(false);
+    const scrollRef = useRef(null);
+    const cardEls = useRef([]);
+    const cooldown = useRef(false);
+    const touchStartY = useRef(0);
+    const sentinelRef = useRef(null);
+    const reactingRef = useRef(false);
 
-    const prevMovie = movieQueue[feedPosition - 1] ?? null;
-    const currMovie = movieQueue[feedPosition] ?? null;
-    const nextMovie = movieQueue[feedPosition + 1] ?? null;
-    const hasPrev = feedPosition > 0;
+    const [reactionAnim, setReactionAnim] = useState(null); // { index, direction: 'like'|'reject' }
 
-    const focusCard = useCallback(() => {
-        setTimeout(() => { if (cardRef.current) cardRef.current.focus(); }, 380);
+    // Scroll so the target card is vertically centered with equal peek above and below
+    const scrollToCard = useCallback((index) => {
+        const container = scrollRef.current;
+        const card = cardEls.current[index];
+        if (!container || !card) return;
+        const peek = Math.max(0, Math.floor((container.clientHeight - card.offsetHeight) / 2));
+        container.scrollTo({ top: Math.max(0, card.offsetTop - peek), behavior: 'smooth' });
     }, []);
 
-    const getH = useCallback(
-        () => containerRef.current?.offsetHeight ?? window.innerHeight,
-        []
-    );
+    useEffect(() => {
+        scrollToCard(feedPosition);
+        // Clear reaction animation when the feed advances (also handles end-of-queue no-ops)
+        setReactionAnim(null);
+        reactingRef.current = false;
+    }, [feedPosition, scrollToCard]);
 
-    const goForward = useCallback(() => {
-        if (isSlidingRef.current) return;
-        isSlidingRef.current = true;
-        setIsSliding(true);
-        setSlideY(-getH());
+    // Add paddingTop/Bottom equal to peek so card 0 can also be scrolled to its centered position
+    const updateContainerPadding = useCallback(() => {
+        const container = scrollRef.current;
+        const firstWrapper = cardEls.current[0];
+        if (!container || !firstWrapper) return;
+        const peek = Math.max(0, Math.floor((container.clientHeight - firstWrapper.offsetHeight) / 2));
+        container.style.paddingTop = `${peek}px`;
+        container.style.paddingBottom = `${peek}px`;
+    }, []);
+
+    useEffect(() => {
+        if (movieQueue.length === 0) return;
+        updateContainerPadding();
+        window.addEventListener('resize', updateContainerPadding);
+        return () => window.removeEventListener('resize', updateContainerPadding);
+    }, [movieQueue.length, updateContainerPadding]);
+
+    const navigate = useCallback((dir) => {
+        if (cooldown.current) return;
+        cooldown.current = true;
+        if (dir === 'next') moveToNext();
+        else moveToPrev();
+        setTimeout(() => { cooldown.current = false; }, NAV_COOLDOWN_MS);
+    }, [moveToNext, moveToPrev]);
+
+    // Wheel — intercept on the container so it doesn't affect other pages
+    useEffect(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        const onWheel = (e) => {
+            e.preventDefault();
+            if (Math.abs(e.deltaY) > 5) navigate(e.deltaY > 0 ? 'next' : 'prev');
+        };
+        el.addEventListener('wheel', onWheel, { passive: false });
+        return () => el.removeEventListener('wheel', onWheel);
+    }, [navigate]);
+
+    // Touch swipe — preventDefault on touchmove blocks native scroll
+    useEffect(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        const onTouchStart = (e) => { touchStartY.current = e.touches[0].clientY; };
+        const onTouchEnd = (e) => {
+            const delta = touchStartY.current - e.changedTouches[0].clientY;
+            if (Math.abs(delta) >= SWIPE_THRESHOLD) navigate(delta > 0 ? 'next' : 'prev');
+        };
+        const onTouchMove = (e) => e.preventDefault();
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        return () => {
+            el.removeEventListener('touchstart', onTouchStart);
+            el.removeEventListener('touchend', onTouchEnd);
+            el.removeEventListener('touchmove', onTouchMove);
+        };
+    }, [navigate]);
+
+    // Keyboard
+    useEffect(() => {
+        const onKey = (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); navigate('next'); }
+            else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); navigate('prev'); }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [navigate]);
+
+    // Load more when sentinel approaches the viewport
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        const container = scrollRef.current;
+        if (!sentinel || !container) return;
+        const obs = new IntersectionObserver(
+            ([entry]) => { if (entry.isIntersecting) fetchNextPage(); },
+            { root: container, threshold: 0 }
+        );
+        obs.observe(sentinel);
+        return () => obs.disconnect();
+    }, [fetchNextPage, movieQueue.length]);
+
+    const handleLike = useCallback((movie) => {
+        if (reactingRef.current) return;
+        reactingRef.current = true;
+        likeMovie(movie);
+        announce(`${movie.title} added to watchlist`);
+        setReactionAnim({ index: feedPosition, direction: 'like' });
         setTimeout(() => {
-            isSlidingRef.current = false;
-            setIsSliding(false);
-            setSlideY(0);
             moveToNext();
-            focusCard();
-        }, 300);
-    }, [getH, moveToNext, focusCard]);
+            // Fallback clear if feedPosition doesn't change (end of queue)
+            setReactionAnim(null);
+            reactingRef.current = false;
+        }, REACTION_ANIMATION_MS);
+    }, [likeMovie, announce, feedPosition, moveToNext]);
 
-    const goBack = useCallback(() => {
-        if (!hasPrev || isSlidingRef.current) return;
-        isSlidingRef.current = true;
-        setIsSliding(true);
-        setSlideY(getH());
+    const handleReject = useCallback((movie) => {
+        if (reactingRef.current) return;
+        reactingRef.current = true;
+        rejectMovie(movie);
+        announce(`Passed on ${movie.title}`);
+        setReactionAnim({ index: feedPosition, direction: 'reject' });
         setTimeout(() => {
-            isSlidingRef.current = false;
-            setIsSliding(false);
-            setSlideY(0);
-            moveToPrev();
-            focusCard();
-        }, 300);
-    }, [hasPrev, getH, moveToPrev, focusCard]);
-
-    const handleSwipe = useCallback((direction) => {
-        if (!currMovie) return;
-        if (direction === 'right') {
-            likeMovie(currMovie);
-            announce(`${currMovie.title} added to watchlist`);
-        } else {
-            rejectMovie(currMovie);
-            announce(`Passed on ${currMovie.title}`);
-        }
-        goForward();
-    }, [currMovie, likeMovie, rejectMovie, announce, goForward]);
-
-    const handleNavigate = useCallback((direction) => {
-        if (direction === 'up') goForward();
-        else goBack();
-    }, [goForward, goBack]);
-
-    const handleVerticalDrag = useCallback((deltaY) => {
-        if (deltaY === null) {
-            isSlidingRef.current = true;
-            setIsSliding(true);
-            setSlideY(0);
-            setTimeout(() => {
-                isSlidingRef.current = false;
-                setIsSliding(false);
-            }, 300);
-        } else {
-            if (isSlidingRef.current) return;
-            setSlideY(deltaY);
-        }
-    }, []);
-
-    // Used by action buttons: shows card overlay + exit animation, then advances deck
-    const handleButtonSwipe = useCallback((direction) => {
-        if (!currMovie) return;
-        if (direction === 'right') {
-            likeMovie(currMovie);
-            announce(`${currMovie.title} added to watchlist`);
-        } else {
-            rejectMovie(currMovie);
-            announce(`Passed on ${currMovie.title}`);
-        }
-        activeCardRef.current?.triggerSwipe(direction);
-        goForward();
-    }, [currMovie, likeMovie, rejectMovie, announce, goForward]);
-
-    const buttonProps = { hasPrev, currentMovie: currMovie, goBack, goForward, handleSwipe: handleButtonSwipe };
+            moveToNext();
+            setReactionAnim(null);
+            reactingRef.current = false;
+        }, REACTION_ANIMATION_MS);
+    }, [rejectMovie, announce, feedPosition, moveToNext]);
 
     if (isLoading && movieQueue.length === 0) {
         return (
-            <main className="flex flex-1 items-center justify-center px-4">
-                <div className="w-full max-w-sm aspect-2/3 rounded-2xl bg-surface-overlay animate-pulse flex items-center justify-center">
+            <main className="flex-1 flex items-center justify-center px-4">
+                <div className="w-full max-w-sm aspect-[2/3] rounded-2xl bg-surface-overlay animate-pulse flex items-center justify-center">
                     <h4 className="type-display-xs animate-pulse">Getting Movies...</h4>
                 </div>
             </main>
@@ -158,92 +160,27 @@ const Discover = () => {
         <>
             <ScreenReaderAnnouncement message={announcement} />
             <main
-                className="flex flex-col grow-1 justify-center min-h-0 md:py-4 md:px-4 overflow-hidden"
-                aria-label="Movie discovery area"
+                ref={scrollRef}
+                aria-label="Movie discovery feed"
+                className="flex-1 overflow-y-scroll overflow-x-hidden scroll-smooth scrollbar-none px-4"
             >
-                <div className="flex justify-center">
-                    <p className="text-center text-text-muted text-xs py-2 md:py-0 md:mb-2 select-none" aria-hidden="true">
-                        ↕ swipe to browse &nbsp;·&nbsp; ← pass &nbsp;·&nbsp; → like
-                    </p>
-                </div>
-
-                <div className="flex items-center justify-center gap-4">
-                    {/* Card container — overflow-hidden clips the pre-rendered off-screen cards */}
+                {movieQueue.map((movie, index) => (
                     <div
-                        ref={containerRef}
-                        className="relative w-[500px] h-[750px] max-w-full max-h-full rounded-2xl overflow-hidden"
+                        key={movie.id}
+                        ref={(el) => { cardEls.current[index] = el; }}
+                        className="py-4"
                     >
-                        {/* Outer deck — all 3 slots translate together during navigation */}
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                transform: `translateY(${slideY}px)`,
-                                transition: isSliding ? 'transform 300ms ease-out' : 'none',
-                            }}
-                        >
-                            {/* Prev card — pre-rendered one slot above, hidden until sliding back */}
-                            <div
-                                key={prevMovie?.id ?? 'prev-empty'}
-                                className="absolute inset-0 p-4"
-                                style={{ transform: 'translateY(-100%)', transition: 'none' }}
-                            >
-                                {prevMovie && (
-                                    <DiscoverCard
-                                        movie={prevMovie}
-                                        isActive={false}
-                                        onSwipe={handleSwipe}
-                                        onNavigate={handleNavigate}
-                                    />
-                                )}
-                            </div>
-
-                            {/* Current card */}
-                            <div
-                                key={currMovie?.id ?? 'curr-empty'}
-                                className="absolute inset-0 p-4"
-                                style={{ transition: 'none' }}
-                            >
-                                {currMovie ? (
-                                    <DiscoverCard
-                                        ref={activeCardRef}
-                                        movie={currMovie}
-                                        isActive={true}
-                                        onSwipe={handleSwipe}
-                                        onNavigate={handleNavigate}
-                                        onVerticalDrag={handleVerticalDrag}
-                                        cardRef={cardRef}
-                                    />
-                                ) : (
-                                    <div className="w-full h-full rounded-2xl bg-surface-overlay flex items-center justify-center">
-                                        <p className="text-text-muted text-sm">No more movies right now.</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Next card — pre-rendered one slot below, hidden until sliding forward */}
-                            <div
-                                key={nextMovie?.id ?? 'next-empty'}
-                                className="absolute inset-0 p-4"
-                                style={{ transform: 'translateY(100%)', transition: 'none' }}
-                            >
-                                {nextMovie && (
-                                    <DiscoverCard
-                                        movie={nextMovie}
-                                        isActive={false}
-                                        onSwipe={handleSwipe}
-                                        onNavigate={handleNavigate}
-                                    />
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Mobile floating buttons — overlaid on card */}
-                        <ActionButtons {...buttonProps} className="absolute bottom-6 right-6 z-10 md:hidden" />
+                        <DiscoverCard
+                            movie={movie}
+                            onLike={() => handleLike(movie)}
+                            onReject={() => handleReject(movie)}
+                            isLiked={likedMovies.some((m) => m.id === movie.id)}
+                            isRejected={rejectedMovies.some((m) => m.id === movie.id)}
+                            reactionAnimation={reactionAnim?.index === index ? reactionAnim.direction : null}
+                        />
                     </div>
-
-                    {/* Desktop buttons — beside card in the flex row */}
-                    <ActionButtons {...buttonProps} className="hidden md:flex" />
-                </div>
+                ))}
+                <div ref={sentinelRef} className="h-1" />
             </main>
         </>
     );

@@ -1,47 +1,19 @@
-import { forwardRef, useImperativeHandle } from 'react';
-import { LikeIcon, PassIcon, RejectIcon, HeartIcon, InfoIcon } from '@icons';
+import { PassIcon, HeartIcon, RejectIcon, InfoIcon } from '@icons';
 import MovieModal from "../common/MovieModal";
 import { useModal } from "@hooks/useModal";
-import { useCardGestures } from "@hooks/useCardGestures";
 
-const DiscoverCard = forwardRef(({ movie, onSwipe, onNavigate, onVerticalDrag, isActive = true, cardRef = null }, ref) => {
+const DiscoverCard = ({ movie, onLike, onReject, isLiked, isRejected, reactionAnimation }) => {
   const { modalId, openModal, closeModal } = useModal();
 
-  const {
-    transform,
-    isDragging,
-    swipeDirection,
-    gestureHandlers,
-    triggerSwipe,
-  } = useCardGestures(onSwipe, onNavigate, { onVerticalDrag });
-
-  useImperativeHandle(ref, () => ({ triggerSwipe }), [triggerSwipe]);
+  const overlayClass = reactionAnimation === 'like'
+    ? 'animate-overlay-like'
+    : reactionAnimation === 'reject'
+      ? 'animate-overlay-reject'
+      : '';
 
   return (
     <>
-      <article
-        ref={cardRef}
-        tabIndex={isActive ? 0 : -1}
-        style={{ transform }}
-        {...(isActive ? gestureHandlers : {})}
-        className={`relative w-full h-full rounded-2xl overflow-hidden select-none touch-none z-10
-          ${isDragging ? 'cursor-grabbing duration-0' : 'cursor-grab'}`}
-        aria-hidden={!isActive}
-      >
-        {swipeDirection && (
-          <div
-            className={`absolute inset-0 rounded-2xl border-2 z-20 flex items-center justify-center
-              ${swipeDirection === 'right'
-                ? 'border-green-500 bg-green-500/25'
-                : 'border-red-500 bg-red-500/25'}`}
-            aria-hidden="true"
-          >
-            {swipeDirection === 'right'
-              ? <HeartIcon className="h-16 w-16 rounded-full text-success-900 p-2 bg-success-500/25" aria-hidden="true" />
-              : <RejectIcon className="h-16 w-16 text-error-900 p-2 bg-error-500/25 rounded-full" aria-hidden="true" />}
-          </div>
-        )}
-
+      <article className="relative w-full max-w-[min(500px,calc((100dvh-10rem)*2/3))] aspect-[2/3] mx-auto overflow-hidden select-none rounded-2xl">
         <img
           className="w-full h-full object-cover"
           src={movie.posterUrl}
@@ -51,18 +23,51 @@ const DiscoverCard = forwardRef(({ movie, onSwipe, onNavigate, onVerticalDrag, i
 
         <button
           onClick={() => openModal(movie.id)}
-          className="absolute top-4 right-4 h-10 w-10 p-0 rounded-full text-white bg-transparent z-50"
+          className="absolute top-4 right-4 h-10 w-10 p-0 rounded-full text-white bg-transparent z-10"
           aria-label={`View details for ${movie.title}`}
         >
           <InfoIcon className="w-8 h-8 bg-primary rounded-full" aria-hidden="true" />
         </button>
+
+        <div className="absolute bottom-6 right-4 flex flex-col gap-3 z-10">
+          <button
+            onClick={onReject}
+            className={`not-italic font-normal p-0 w-14 h-14 rounded-full shadow-lg border-2 transition-colors
+              ${isRejected ? 'bg-error-500 border-error-500 text-white' : 'bg-black/30 border-error-500 text-error-500'}`}
+            aria-label={`Pass on ${movie.title}`}
+          >
+            <PassIcon />
+          </button>
+          <button
+            onClick={onLike}
+            className={`not-italic font-normal p-0 w-14 h-14 rounded-full shadow-lg border-2 transition-colors
+              ${isLiked ? 'bg-success-500 border-success-500 text-white' : 'bg-black/30 border-success-500 text-success-500'}`}
+            aria-label={`Like ${movie.title}`}
+          >
+            <HeartIcon />
+          </button>
+        </div>
+
+        {overlayClass && (
+          <div
+            className={`absolute inset-0 flex flex-col items-center justify-center gap-2 ${
+              reactionAnimation === 'like' ? 'bg-success-500/60' : 'bg-error-500/60'
+            } ${overlayClass}`}
+          >
+            {reactionAnimation === 'like'
+              ? <HeartIcon width={56} height={56} className="text-white" />
+              : <PassIcon width={56} height={56} className="text-white" />
+            }
+            <span className="text-white font-bold text-2xl tracking-wide">
+              {reactionAnimation === 'like' ? 'Liked!' : 'Nope!'}
+            </span>
+          </div>
+        )}
       </article>
 
       <MovieModal movie={movie} isOpen={modalId === movie.id} closeModal={closeModal} />
     </>
   );
-});
-
-DiscoverCard.displayName = 'DiscoverCard';
+};
 
 export default DiscoverCard;

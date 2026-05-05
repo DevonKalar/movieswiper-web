@@ -46,5 +46,6 @@ export function useRecommendationsFeed() {
     error: error as Error | null,
     moveToNext,
     moveToPrev,
+    fetchNextPage,
   };
 }

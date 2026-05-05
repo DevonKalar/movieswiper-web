@@ -3,6 +3,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import AuthProvider from '@providers/AuthProvider.jsx';
 import MainLayout from '@layouts/MainLayout.jsx';
+import DiscoverLayout from '@layouts/DiscoverLayout.jsx';
 import NotFound from '@pages/NotFound.jsx';
 import WatchList from '@pages/WatchList';
 import Discover from '@pages/Discover.jsx';
@@ -18,11 +19,15 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<MainLayout />}>
-      <Route index element={<Discover />} />
-      <Route path="watchlist" element={<WatchList />} />
-      <Route path="*" element={<NotFound />} />
-    </Route>
+    <>
+      <Route element={<DiscoverLayout />}>
+        <Route index element={<Discover />} />
+      </Route>
+      <Route element={<MainLayout />}>
+        <Route path="watchlist" element={<WatchList />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </>
   )
 );
 
