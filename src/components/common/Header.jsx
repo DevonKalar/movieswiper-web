@@ -8,7 +8,7 @@ import { usePopover } from "@hooks/usePopover";
 import { SignOutIcon } from "@icons";
 
 const Header = () => {
-    const { isAuthenticated, logout, user } = useAuth();
+    const { isAuthenticated, isGuest, logout, user } = useAuth();
     const { popovers, togglePopover } = usePopover();
 
     const handleLogout = async () => {
@@ -78,22 +78,15 @@ const Header = () => {
                             {isAuthenticated && (
                                 <>
                                     <hr className="border-1 w-full border-border-strong" />
-                                    <NavLink to="/profile" className="nav-link text-white">
-                                        Profile
-                                    </NavLink>
-                                    <NavLink to="/settings" className="nav-link text-white">
-                                        Settings
-                                    </NavLink>
                                     <NavLink to="/account" className="nav-link text-white">
                                         Account
                                     </NavLink>
-
                                 </>
                             )}
                         </nav>
                         {isAuthenticated ? (
                             <>
-                                <p className="type-label-md self-center">Logged in as {user.firstName}, not you?</p>
+                                <p className="type-label-md self-center">Logged in as {isGuest ? 'Guest' : user.firstName}, not you?</p>
                                 <button className="type-label-sm block w-full text-text-default" onClick={handleLogout}>
                                     Sign Out
                                     <SignOutIcon className="inline-block ml-2" height={16} width={16} />

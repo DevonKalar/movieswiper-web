@@ -2,12 +2,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import AuthProvider from '@providers/AuthProvider.jsx';
+import GuestBannerProvider from '@providers/GuestBannerProvider';
+import useAuth from '@providers/AuthContext';
 import MainLayout from '@layouts/MainLayout.jsx';
 import DiscoverLayout from '@layouts/DiscoverLayout.jsx';
 import NotFound from '@pages/NotFound.jsx';
 import WatchList from '@pages/WatchList';
 import Discover from '@pages/Discover.jsx';
+import Account from '@pages/Account';
 import AiChat from '@components/chat/AiChat.jsx';
+import AuthGate from '@components/auth/AuthGate';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,18 +29,33 @@ const router = createBrowserRouter(
       </Route>
       <Route element={<MainLayout />}>
         <Route path="watchlist" element={<WatchList />} />
+        <Route path="account" element={<Account />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </>
   )
 );
 
+function AppContent() {
+  const { user, isInitialLoading } = useAuth();
+  const showAuthGate = !isInitialLoading && !user;
+
+  return (
+    <>
+      <RouterProvider router={router} />
+      <AiChat />
+      {showAuthGate && <AuthGate />}
+    </>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
-        <AiChat />
+        <GuestBannerProvider>
+          <AppContent />
+        </GuestBannerProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
