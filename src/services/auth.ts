@@ -1,6 +1,6 @@
 import apiClient from './apiClient';
 import { storeTokens, clearTokens, getRefreshToken } from './tokenStorage';
-import type { User, AuthResponse, LoginCredentials, RegisterData } from '../types/auth';
+import type { User, AuthResponse, LoginCredentials, RegisterData, PromoteAccountData, UpdateAccountData } from '../types/auth';
 
 const TIMEOUT = 10000;
 
@@ -27,4 +27,20 @@ export async function logout() {
 export async function getCurrentUser(): Promise<User> {
   const response = await apiClient.get<User>('/auth/check', { timeout: TIMEOUT });
   return response.data;
+}
+
+export async function createGuestSession(): Promise<User> {
+  const response = await apiClient.post<AuthResponse>('/auth/guest', {}, { timeout: TIMEOUT });
+  storeTokens(response.data.accessToken, response.data.refreshToken);
+  return response.data.user;
+}
+
+export async function promoteAccount(data: PromoteAccountData): Promise<User> {
+  const response = await apiClient.patch<{ user: User }>('/auth/promote', data, { timeout: TIMEOUT });
+  return response.data.user;
+}
+
+export async function updateAccount(data: UpdateAccountData): Promise<User> {
+  const response = await apiClient.patch<{ user: User }>('/auth/account', data, { timeout: TIMEOUT });
+  return response.data.user;
 }
