@@ -30,10 +30,6 @@ const PromoteAccountForm = ({ onSuccess }: PromoteAccountFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div>
-        <h2 className="type-heading-md">Create Your Account</h2>
-        <p className="type-prose-md mt-2">Set up your account to save your watchlist and preferences permanently.</p>
-      </div>
       {validationError && <p className="text-red-500">{validationError}</p>}
       {error && <p className="text-red-500">{error.message}</p>}
       <label htmlFor="promote-email">Email</label>
