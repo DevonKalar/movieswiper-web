@@ -85,18 +85,21 @@ export function useRemoveFromWatchlist() {
 }
 
 export function useWatchlist() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isInitialLoading } = useAuth();
   const queryClient = useQueryClient();
   const service = getWatchlistService(isAuthenticated);
   const addMutation = useAddToWatchlist();
   const removeMutation = useRemoveFromWatchlist();
 
-  const { data: likedMovies = [], isLoading, error } = useQuery({
+  const { data: likedMovies = [], isLoading: isQueryLoading, error } = useQuery({
     queryKey: queryKeys.watchlist.list(),
     queryFn: () => service.getWatchlist(),
     staleTime: isAuthenticated ? 1000 * 60 * 5 : Infinity,
     retry: false,
+    enabled: !isInitialLoading,
   });
+
+  const isLoading = isInitialLoading || isQueryLoading;
 
   const { data: rejectedMovies = [] } = useQuery({
     queryKey: queryKeys.watchlist.rejected(),
