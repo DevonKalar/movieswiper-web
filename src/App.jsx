@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import AuthProvider from '@providers/AuthProvider.jsx';
+import GuestBannerProvider from '@providers/GuestBannerProvider';
 import useAuth from '@providers/AuthContext';
 import MainLayout from '@layouts/MainLayout.jsx';
 import DiscoverLayout from '@layouts/DiscoverLayout.jsx';
@@ -52,7 +53,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppContent />
+        <GuestBannerProvider>
+          <AppContent />
+        </GuestBannerProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

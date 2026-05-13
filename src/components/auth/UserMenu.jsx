@@ -6,7 +6,7 @@ import useAuth from "@providers/AuthContext";
 
 const UserMenu = () => {
   const { popovers, togglePopover } = usePopover();
-  const { user, logout } = useAuth();
+  const { user, isGuest, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -24,7 +24,7 @@ const UserMenu = () => {
 
     {popovers["user-menu"] && (
     <div className="popover flex flex-col gap-4 absolute right-0 top-full mt-6 w-48 bg-surface-raised p-4 rounded-2xl shadow-lg z-50">
-      <p className="type-label-md text-white">Hello, {user.firstName}!</p>
+      <p className="type-label-md text-white">Hello, {isGuest ? 'Guest' : user.firstName}!</p>
       <Link to="/account" className="type-label-sm block w-full text-left text-text-default">Account</Link>
       <button className="not-italic font-bold block w-full" onClick={handleLogout}>
       Sign Out
